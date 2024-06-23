@@ -1,3 +1,4 @@
+# Olá esse texto é para testar
 # Import the AzureAD module
 Import-Module AzureAD
 
