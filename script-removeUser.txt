@@ -1,0 +1,33 @@
+# Import the AzureAD module
+Import-Module AzureAD
+
+# Connect to your Azure AD tenant
+Connect-AzureAD
+
+# Set the UserPrincipalName of the user to be removed from all groups
+$UserPrincipalName = "user@domain.com"
+
+# Get the user object
+$User = Get-AzureADUser -Filter "UserPrincipalName eq '$UserPrincipalName'"
+
+if ($User) {
+    # Get all groups the user is a member of
+    $Groups = Get-AzureADUserMembership -ObjectId $User.ObjectId
+
+    # Iterate through each group and remove the user from the group
+    foreach ($Group in $Groups) {
+        try {
+            Remove-AzureADGroupMember -ObjectId $Group.ObjectId -MemberId $User.ObjectId
+            Write-Host "Removed $($User.DisplayName) from $($Group.DisplayName)" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Error removing $($User.DisplayName) from $($Group.DisplayName): $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+}
+else {
+    Write-Host "User not found." -ForegroundColor Red
+}
+
+# Disconnect from your Azure AD tenant
+Disconnect-AzureAD
